@@ -2,6 +2,7 @@ from PID_Simulator.PID_Simulator import PID
 from PID_Simulator.PID_Simulator import HeatingSystem
 from PID_Simulator.PID_Simulator import simulate
 import numpy as np
+import matplotlib.pyplot as plt
 
 def fitness_function(params, setpoint, heating_system, sample_time, simulation_time):
     Kp, Ki, Kd = params
@@ -39,6 +40,8 @@ population = np.random.rand(population_size, 3)  # 每个个体包含3个参数�
 for i in range(3):
     population[:, i] = population[:, i] * (param_bounds[i][1] - param_bounds[i][0]) + param_bounds[i][0]
 
+best_fitness_history = []
+
 # 进行遗传算法
 for generation in range(generations):
     fitness = []
@@ -56,6 +59,9 @@ for generation in range(generations):
     # 避免NaN和无穷值
     if np.any(np.isnan(fitness)) or np.any(np.isinf(fitness)):
         fitness[np.isnan(fitness) | np.isinf(fitness)] = -np.inf
+
+    best_fitness = np.max(fitness)
+    best_fitness_history.append(best_fitness)
 
     # 选择（轮盘赌选择）
     fitness_sum = np.sum(fitness)
@@ -90,10 +96,16 @@ for generation in range(generations):
             individual[mutation_point] = np.random.rand() * (
                         param_bounds[mutation_point][1] - param_bounds[mutation_point][0]) + \
                                          param_bounds[mutation_point][0]
-
     population = next_population
 
 # 找到最优参数
+plt.plot(best_fitness_history)
+plt.xlabel('Generation')
+plt.ylabel('Best Fitness')
+plt.title('Fitness Convergence Curve')
+plt.show()
+
+
 best_individual = population[np.argmax(fitness)]
 best_Kp, best_Ki, best_Kd = best_individual
 print(f"Best Kp: {best_Kp}, Best Ki: {best_Ki}, Best Kd: {best_Kd}")

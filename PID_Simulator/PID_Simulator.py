@@ -80,5 +80,32 @@ def simulate(Kp,Ki,Kd):
     plt.savefig("PID_Simulator.png")
     plt.show()
 
-# if __name__ == '__main__':
-#     simulate()
+    settling_time = None
+    overshoot = None
+    rise_time = None
+    steady_state_error = abs(100 - temperatures[-1])
+
+    # 计算上升时间
+    for t, temp in zip(times, temperatures):
+        if temp >= 100:
+            rise_time = t
+            break
+
+    # 计算过冲
+    overshoot = max(temperatures) - 100
+
+    # 计算稳定时间（误差小于2%设定值）
+    for t, temp in reversed(list(zip(times, temperatures))):
+        if abs(temp - 100) > 2:
+            settling_time = t
+            break
+
+    settling_time = times[-1] - settling_time
+
+    print(f"Rise Time: {rise_time} s")
+    print(f"Overshoot: {overshoot} C")
+    print(f"Settling Time: {settling_time} s")
+    print(f"Steady State Error: {steady_state_error} C")
+
+if __name__ == '__main__':
+    simulate(0.47,0.86,0.87)
